@@ -1,12 +1,12 @@
 package types
 
 const (
-	UP ServiceStatus = iota
-	DOWN ServiceStatus = iota
-	SLOW ServiceStatus = iota
+	UP ServiceStatus = "UP"
+	DOWN ServiceStatus = "DOWN"
+	SLOW ServiceStatus = "SLOW"
 )
 
-type ServiceStatus int64
+type ServiceStatus string
 
 func (s ServiceStatus) String() string {
 	switch s {
@@ -21,10 +21,10 @@ func (s ServiceStatus) String() string {
 }
 
 const (
-	PROTO_TCP ServiceProtocol = iota
-	PROTO_UDP ServiceProtocol = iota
+	PROTO_TCP ServiceProtocol = "TCP"
+	PROTO_UDP ServiceProtocol = "UDP"
 )
-type ServiceProtocol int64
+type ServiceProtocol string
 
 func (s ServiceProtocol) String() string {
 	switch s {

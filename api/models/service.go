@@ -12,18 +12,18 @@ import (
 
 type IService interface {
 	CheckStatus() error
-	ModifyAttribute(key string, value interface{}) error
 }
 
 type Service struct {
 	gorm.Model
-	Name string
-	Host string
-	Port int64
-	Protocol types.ServiceProtocol
-	CurrentStatus types.ServiceStatus
-	TimeoutMs int64
-	RefreshTimeMs int64
+	ID uint `gorm:"primaryKey"`
+	Name string `gorm:"not null"`
+	Host string `gorm:"not null"`
+	Port int64 `gorm:"not null"`
+	Protocol types.ServiceProtocol `gorm:"not null"`
+	CurrentStatus types.ServiceStatus `gorm:"not null"`
+	TimeoutMs int64 `gorm:"not null"`
+	RefreshTimeMs int64 `gorm:"not null"`
 }
 
 func (s *Service) CheckStatus() error {
@@ -32,14 +32,11 @@ func (s *Service) CheckStatus() error {
 	conn, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
 	if err != nil {
 		s.CurrentStatus = types.DOWN
-		return nil
 	}
 	execTime := time.Since(startTime).Milliseconds()
-	fmt.Printf("Took %d ms to reach %s\n", execTime, s.Name)
 	
 	if execTime > time.Duration(50 * time.Millisecond).Milliseconds() {
 		s.CurrentStatus = types.SLOW
-		return nil
 	}
 
 	conn.Close()

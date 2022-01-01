@@ -14,11 +14,11 @@ import (
 type DatabaseInstance *gorm.DB
 
 var (
-	instance DatabaseInstance
+	instance *gorm.DB
 	once sync.Once
 )
 
-func GetDBInstance() (DatabaseInstance, error) {
+func GetDBInstance() (*gorm.DB, error) {
 	once.Do(func() {
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=stayup_db port=%d sslmode=disable TimeZone=America/Chicago", config.App.DBHost, config.App.DBUser, config.App.DBPass, config.App.DBPort)
 		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -29,7 +29,7 @@ func GetDBInstance() (DatabaseInstance, error) {
 		// configure db instance
 		db.AutoMigrate(&models.Service{})
 
-		instance = DatabaseInstance(db)
+		instance = db
 	})
 
 	return instance, nil

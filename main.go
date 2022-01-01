@@ -43,13 +43,13 @@ func main() {
 
 	// Client (no group req)
 	e.GET("/", func(c echo.Context) error {
-		
 		return c.HTML(http.StatusOK, "<h1>This is the main page of the website</h1>")
 	})
 
 	// API Group
 	gApi := e.Group("/api")
 	gApi.POST("/service", api.CreateService)
+	gApi.PUT("/service", api.UpdateService)
 
 	e.Logger.Fatal(e.Start(":5555"))
 }
