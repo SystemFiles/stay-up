@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:13.1
+    container_name: database
+    restart: on-failure
+    environment:
+      POSTGRES_DB: stayup_db
+      POSTGRES_USER: stayup
+      POSTGRES_PASSWORD: upstay
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  db_data:

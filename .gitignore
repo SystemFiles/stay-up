@@ -13,6 +13,10 @@
 *.out
 
 # Dev Files (like air compile directory)
+.env
+.dev.env
+.prod.env
+.test.env
 dev/*
 
 # Dependency directories (remove the comment below to include it)

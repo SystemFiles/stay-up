@@ -7,19 +7,21 @@ import (
 	"time"
 
 	"github.com/systemfiles/stay-up/api/types"
+	"gorm.io/gorm"
 )
 
 type IService interface {
-	UpdateStatus()
-	Update(key, value string) Service
+	CheckStatus() error
+	ModifyAttribute(key string, value interface{}) error
 }
 
 type Service struct {
+	gorm.Model
 	Name string
 	Host string
 	Port int64
 	Protocol types.ServiceProtocol
-	CurrentStatus string
+	CurrentStatus types.ServiceStatus
 	TimeoutMs int64
 	RefreshTimeMs int64
 }
@@ -29,14 +31,14 @@ func (s *Service) CheckStatus() error {
 	startTime := time.Now()
 	conn, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
 	if err != nil {
-		s.CurrentStatus = types.DOWN.String()
+		s.CurrentStatus = types.DOWN
 		return nil
 	}
 	execTime := time.Since(startTime).Milliseconds()
 	fmt.Printf("Took %d ms to reach %s\n", execTime, s.Name)
 	
 	if execTime > time.Duration(50 * time.Millisecond).Milliseconds() {
-		s.CurrentStatus = types.SLOW.String()
+		s.CurrentStatus = types.SLOW
 		return nil
 	}
 
