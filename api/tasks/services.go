@@ -3,21 +3,17 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"net"
 	"sync"
 	"time"
 
 	"github.com/systemfiles/stay-up/api/models"
-	"github.com/systemfiles/stay-up/api/providers"
+	"github.com/systemfiles/stay-up/api/provider"
 	"github.com/systemfiles/stay-up/api/util"
 )
-
-var sharedConn net.Conn
 
 func InitBackgroundServiceRefresh(ctx context.Context) error {
 	select {
 	case <- ctx.Done():
-		sharedConn.Close() // closes the open connection for testing reachability (net conn dial + timeout)
 		return ctx.Err()
 	default:
 		// perform repeating synchronization
@@ -26,7 +22,7 @@ func InitBackgroundServiceRefresh(ctx context.Context) error {
 			var wg sync.WaitGroup
 
 			// get all services
-			err := providers.GetAllServices(&services)
+			err := provider.GetAllServices(&services)
 			if err != nil {
 				return err
 			}
@@ -57,13 +53,10 @@ func serviceWorker(svc *models.Service) {
 		return
 	}
 
-	conn, err := svc.CheckAndUpdateStatus()
-	if err != nil {
+	if err := svc.CheckAndUpdateStatus(); err != nil {
 		fmt.Printf("Failed to get status for service: %s. Reason: %s", svc.Name, err.Error())
 		return
 	}
-
-	sharedConn = *conn
 
 	db.Save(&svc)
 }

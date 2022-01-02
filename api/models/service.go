@@ -24,10 +24,10 @@ type Service struct {
 	TimeoutMs int64 `gorm:"not null"`
 }
 
-func (s *Service) CheckAndUpdateStatus() (*net.Conn, error) {
+func (s *Service) CheckAndUpdateStatus() error {
 	timeout := time.Duration(s.TimeoutMs) * time.Millisecond
 	startTime := time.Now()
-	conn, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
+	_, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
 	execTime := time.Since(startTime).Milliseconds()
 	if err != nil {
 		s.CurrentStatus = types.DOWN
@@ -36,6 +36,5 @@ func (s *Service) CheckAndUpdateStatus() (*net.Conn, error) {
 	} else {
 		s.CurrentStatus = types.UP
 	}
-
-	return &conn, nil
+	return nil
 }

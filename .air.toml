@@ -4,7 +4,7 @@ tmp_dir = "dev"
 
 [build]
   bin = "./dev/main"
-  cmd = "go build -o ./dev/main ."
+  cmd = "go build -o ./dev/stayup ."
   delay = 1000
   exclude_dir = ["assets", "dev", "vendor", "testdata", ".github"]
   exclude_file = [".gitignore", "LICENSE", "README.md"]
