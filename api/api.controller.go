@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/systemfiles/stay-up/api/daos"
@@ -23,11 +24,6 @@ func CreateService(c echo.Context) error {
 		return err
 	}
 
-	refreshTime := data.RefreshTimeMs
-	if refreshTime == 0 {
-		refreshTime = 10000
-	}
-
 	// Create model from request data
 	svc := models.Service{
 		Name: data.Name,
@@ -36,7 +32,6 @@ func CreateService(c echo.Context) error {
 		Protocol: util.GetProtocolFromString(data.Protocol),
 		CurrentStatus: types.UP,
 		TimeoutMs: data.TimeoutMs,
-		RefreshTimeMs: refreshTime,
 	}
 
 	// Open DB connection
@@ -55,7 +50,25 @@ func CreateService(c echo.Context) error {
 }
 
 func GetServiceWithId(c echo.Context) error {
-	return nil
+	serviceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Cannot process ID provided")
+	}
+
+	// open database connection
+	db, err := util.GetDBInstance()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Could not reach database")
+	}
+
+	// find service with id
+	var svc models.Service
+	db.First(&svc, serviceID)
+	if svc.ID != serviceID {
+		return echo.NewHTTPError(http.StatusNotFound, "Could not find the desired service")
+	}
+
+	return c.JSONPretty(http.StatusOK, svc, "  ")
 }
 
 func UpdateService(c echo.Context) error {
@@ -74,20 +87,44 @@ func UpdateService(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Could not reach database")
 	}
 
-	// perform update to service model
+	// find service model with given primary_key -> id
 	var svc models.Service
 	db.First(&svc, data.ID)
 	if svc.ID != data.ID {
 		return echo.NewHTTPError(http.StatusNotFound, "Could not find a service with ID, " + fmt.Sprint(data.ID))
 	}
-	result := db.Model(&svc).Update(data.Attribute, data.NewValue)
-	if result.Error != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Could not perform the update. Reason " + result.Error.Error())
+
+	// make update
+	if err := db.Model(&svc).Update(data.Attribute, data.NewValue).Error; err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Could not perform the update. Reason " + err.Error())
 	}
 
 	return c.JSONPretty(http.StatusOK, svc, "  ")
 }
 
 func DeleteServiceWithId(c echo.Context) error {
-	return nil
+	serviceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Cannot process ID provided")
+	}
+
+	// open database connection
+	db, err := util.GetDBInstance()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Could not reach database")
+	}
+
+	// find service using ID
+	var svc models.Service
+	db.First(&svc, serviceID)
+	if svc.ID != serviceID {
+		return echo.NewHTTPError(http.StatusNotFound, "Could not find the desired service for deletion")
+	}
+
+	// delete the service
+	if err := db.Delete(&svc).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete service from database. " + err.Error())
+	}
+
+	return c.JSONPretty(http.StatusOK, daos.DeleteServiceResponse{Message: "Deleted service with ID " + fmt.Sprint(serviceID)}, "  ")
 }

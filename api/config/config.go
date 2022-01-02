@@ -14,7 +14,7 @@ type AppConfig struct {
 	DBPort int64
 	DBUser string
 	DBPass string
-	DefaultServiceRefreshTimeMs int64
+	RefreshTimeMs int64
 }
 
 func (c *AppConfig) Init() error {
@@ -52,7 +52,7 @@ func (c *AppConfig) Init() error {
 		DBPort: dbPort,
 		DBUser: dbUser,
 		DBPass: dbPass,
-		DefaultServiceRefreshTimeMs: refreshTime,
+		RefreshTimeMs: refreshTime,
 	}
 
 	return nil

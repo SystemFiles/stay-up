@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/systemfiles/stay-up/api"
 	"github.com/systemfiles/stay-up/api/config"
+	"github.com/systemfiles/stay-up/api/tasks"
 )
 
 // Custom struct validation
@@ -48,8 +50,17 @@ func main() {
 
 	// API Group
 	gApi := e.Group("/api")
+
+	// Service CRUD
+	gApi.GET("/service/:id", api.GetServiceWithId)
 	gApi.POST("/service", api.CreateService)
 	gApi.PUT("/service", api.UpdateService)
+	gApi.DELETE("/service/:id", api.DeleteServiceWithId)
 
-	e.Logger.Fatal(e.Start(":5555"))
+	// start background jobs to constantly check
+	backgroundCtx := context.Background()
+	go tasks.InitBackgroundServiceRefresh(backgroundCtx)
+
+	e.Logger.Info(e.Start(":5555"))
+	backgroundCtx.Done()
 }
