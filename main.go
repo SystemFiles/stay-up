@@ -43,9 +43,10 @@ func main() {
 	// Load validators
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	// Client (no group req)
+	// Websocker (realtime data)
 	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, "<h1>This is the main page of the website</h1>")
+		// Open websocker
+		return echo.NewHTTPError(http.StatusNotImplemented, "This endpoint is not implemented")
 	})
 
 	// API Group

@@ -3,7 +3,7 @@ testdata_dir = "testdata"
 tmp_dir = "dev"
 
 [build]
-  bin = "./dev/main"
+  bin = "./dev/stayup"
   cmd = "go build -o ./dev/stayup ."
   delay = 1000
   exclude_dir = ["assets", "dev", "vendor", "testdata", ".github"]
