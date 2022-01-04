@@ -3,7 +3,9 @@
     <div class="banner">
       <div class="container" style="margin-top: 2.4rem;">
         <h1 class="d-flex justify-content-center logo-font">StayUp</h1>
-        <p class="d-flex justify-content-center ">Ultra-Lightweight Service / Host Monitoring Solution</p>
+        <p
+          class="d-flex justify-content-center"
+        >Ultra-Lightweight Service / Host Monitoring Solution</p>
       </div>
     </div>
     <div class="container page">
@@ -12,98 +14,71 @@
 
       <div class="container mt-5 mx-auto">
         <div class="row">
-          <div class="col-md-3">
-            <div class="card my-2">
-              <div class="card-body">
-                <h4 class="card-title">Jellyfin</h4>
-                <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">jelly.sykeshome.io : 443</h6>
-                <p class="card-text">No description was provided</p>
-                <div class="row mx-0">
-                  <div class="badge bg-success px-5 py-3 mx-auto">UP</div>
-                </div>
-                <div class="row mt-3">
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-danger">DELETE</button>
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-primary">EDIT</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card my-2">
-              <div class="card-body">
-                <h4 class="card-title">Deluge</h4>
-                <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">deluge.sykeshome.io : 3000</h6>
-                <p class="card-text">No description was provided</p>
-                <div class="row mx-0">
-                  <div class="badge bg-danger px-5 py-3 mx-auto">DOWN</div>
-                </div>
-                <div class="row mt-3">
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-danger">DELETE</button>
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-primary">EDIT</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card my-2">
-              <div class="card-body">
-                <h4 class="card-title">Resume Site</h4>
-                <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">sykesdev.ca : 443</h6>
-                <p class="card-text">No description was provided</p>
-                <div class="row mx-0">
-                  <div class="badge bg-warning px-5 py-3 mx-auto">SLOW</div>
-                </div>
-                <div class="row mt-3">
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-danger">DELETE</button>
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-primary">EDIT</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card my-2">
-              <div class="card-body">
-                <h4 class="card-title">Bitwarden</h4>
-                <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">bitwarden.sykesdev.ca : 443</h6>
-                <p class="card-text">No description was provided</p>
-                <div class="row mx-0">
-                  <div class="badge bg-success px-5 py-3 mx-auto">UP</div>
-                </div>
-                <div class="row mt-3">
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-danger">DELETE</button>
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" class="w-100 my-1 btn btn-primary">EDIT</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="col-md-3" v-for="svc in services">
+            <service-list-item
+              v-bind:id="svc.id"
+              v-bind:name="svc.name"
+              v-bind:description="svc.description"
+              v-bind:host="svc.host"
+              v-bind:port="svc.port"
+              v-bind:currentStatus="svc.currentStatus"
+              @deleteSvc="deleteSvc(svc)"
+              @updateSvc="updateSvc(svc)"
+            />
           </div>
         </div>
       </div>
     </div>
     <div class="container operations fixed-bottom">
-      <div class="row bg-body pb-1">
-        <div class="col-md-6 col-sm-12">
-          <button type="button" v-on:click="refresh" class="w-100 my-1 btn btn-primary">Refresh Services</button>
-        </div>
-        <div class="col-md-6 col-sm-12">
+      <div class="row bg-body pb-1 justify-content-end">
+        <div class="col-md-2 col-sm-12">
           <router-link :to="{ name: 'add' }">
-            <button type="button" class="w-100 my-1 btn btn-success">ADD Service</button>
+            <button type="button" class="w-100 my-1 btn btn-success">ADD</button>
           </router-link>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="fixed-bottom mb-5 ml-5 d-flex justify-content-end">
+        <div v-if="error" class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Error</strong>
+            <button
+              type="button"
+              class="btn-close ms-2 mb-1"
+              v-on:click="toggleError"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="toast-body">{{ errorMessage }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="fixed-bottom mb-5 ml-5 d-flex justify-content-end">
+        <div
+          v-if="success"
+          class="toast show"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="toast-header">
+            <strong class="me-auto">StayUp</strong>
+            <button
+              type="button"
+              class="btn-close ms-2 mb-1"
+              v-on:click="toggleSuccess"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            >
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="toast-body">{{ successMessage }}</div>
         </div>
       </div>
     </div>
@@ -111,17 +86,66 @@
 </template>
 
 <script>
+import ServiceListItemVue from "../components/ServiceListItem.vue";
+import { SvcService } from "../common/api.service";
 export default {
   name: "Home",
   data() {
     return {
+      services: [{
+        id: 1,
+        name: "Bitwarden",
+        host: "bitwarden.sykesdev.ca",
+        port: 443,
+        description: "A self-host password vault",
+        currentStatus: "SLOW"
+      }, {
+        id: 2,
+        name: "Jellyfin",
+        host: "jely.sykeshome.io",
+        port: 443,
+        description: "Media server for TV/Movies",
+        currentStatus: "UP"
+      }],
+      error: false,
+      errorMessage: '',
+      success: false,
+      successMessage: '',
       componentKey: 0
     }
   },
+  components: {
+    serviceListItem: ServiceListItemVue
+  },
   methods: {
+    toggleError() {
+      this.$data.error = false
+    },
+    toggleSuccess() {
+      this.$data.success = false
+    },
     refresh() {
-      this.componentKey += 1
-      console.log(this.componentKey)
+      this.componentKey += 1 // will force re-render
+    },
+    getServices() {
+      // Open websocket and receive data to services state
+    },
+    async updateSvc(svc) {
+      console.log("NOT IMPLEMENTED")
+      this.$data.error = true
+      this.$data.errorMessage = "Feature not implemented yet..."
+    },
+    async deleteSvc(svc) {
+      SvcService.delete(svc.id).then((res) => {
+        if (res.status === 200) {
+          this.$data.success = true
+          this.$data.successMessage = `Successfully deleted service with ID, ${svc.id}!`
+        }
+      }).catch((err) => {
+        this.$data.error = true
+        this.$data.errorMessage = `Failed to delete service with ID, ${svc.id}. See log for details.`
+        console.log(err.response ? err.response.data.message : err.message)
+      })
     }
   }
 };

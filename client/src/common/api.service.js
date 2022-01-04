@@ -40,12 +40,27 @@ const ApiService = {
 }
 
 export const SvcService = {
-	get() {
+	getWebsocket() {
 		return ApiService.get('ws')
+	},
+
+	get(id) {
+		return ApiService.get(`service/${id}`)
 	},
 
 	post(data) {
 		return ApiService.post('service', data)
+	},
+
+	put(attr, val) {
+		return ApiService.put('service', {
+			attribute : attr,
+			new_value : val
+		})
+	},
+
+	delete(id) {
+		return ApiService.delete(`service/${id}`)
 	}
 }
 
