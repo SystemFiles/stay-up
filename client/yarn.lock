@@ -1227,6 +1227,11 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@saeris/vue-spinners@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@saeris/vue-spinners/-/vue-spinners-1.0.8.tgz#bc66975143ccfeeb60d38eb207729384804ee755"
+  integrity sha512-sSUWFVdYyAdLKuWuu+kk1ntiKt7AflqWGAsRoHkol1n2J8moFxIAwFf8RJmdPGLmdjvz8TBuXjy67NOIdhSlFg==
+
 "@soda/friendly-errors-webpack-plugin@^1.7.1":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@soda/friendly-errors-webpack-plugin/-/friendly-errors-webpack-plugin-1.8.1.tgz#4d4fbb1108993aaa362116247c3d18188a2c6c85"

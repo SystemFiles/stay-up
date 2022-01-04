@@ -1,1 +1,1 @@
-export const ARTICLE_PUBLISH = 'publishArticle'
+export const POST_SERVICE = 'postService'

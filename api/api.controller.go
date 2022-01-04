@@ -22,7 +22,7 @@ func CreateService(c echo.Context) error {
 	}
 
 	// create service in database
-	svc, err := provider.CreateService(data.Name, data.Host, data.Protocol, data.Port, data.TimeoutMs)
+	svc, err := provider.CreateService(data.Name, data.Description, data.Host, data.Protocol, data.Port, data.TimeoutMs)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}

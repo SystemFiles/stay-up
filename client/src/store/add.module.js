@@ -1,37 +1,52 @@
+import { SvcService } from '../common/api.service'
+import { POST_SERVICE } from './actions.type'
+import { ADDSVC } from './mutations.type'
+
 const state = {
-	tags          : [],
-	articles      : [],
-	isLoading     : true,
-	articlesCount : 0
+	serviceName     : '',
+	serviceHost     : '',
+	serviceDesc     : '',
+	servicePort     : '',
+	serviceProtocol : '',
+	serviceTimeout  : 0
 }
 
-const getters = {}
+const getters = {
+	serviceName(state) {
+		return state.serviceName
+	},
+	serviceHost(state) {
+		return state.serviceHost
+	},
+	servicePort(state) {
+		return state.servicePort
+	},
+	serviceDesc(state) {
+		return state.serviceDesc
+	},
+	serviceProtocol(state) {
+		return state.serviceProtocol
+	},
+	serviceTimeout(state) {
+		return state.serviceTimeout
+	}
+}
+
+const actions = {
+	[POST_SERVICE](data) {
+		return SvcService.post(data)
+	}
+}
 
 /* eslint no-param-reassign: ["error", { "props": false }] */
 const mutations = {
-	[FETCH_START](state) {
-		state.isLoading = true
-	},
-	[FETCH_END](state, { articles, articlesCount }) {
-		state.articles = articles
-		state.articlesCount = articlesCount
-		state.isLoading = false
-	},
-	[SET_TAGS](state, tags) {
-		state.tags = tags
-	},
-	[UPDATE_ARTICLE_IN_LIST](state, data) {
-		state.articles = state.articles.map((article) => {
-			if (article.slug !== data.slug) {
-				return article
-			}
-			// We could just return data, but it seems dangerous to
-			// mix the results of different api calls, so we
-			// protect ourselves by copying the information.
-			article.favorited = data.favorited
-			article.favoritesCount = data.favoritesCount
-			return article
-		})
+	[ADDSVC](state, name, host, port, desc, protocol, timeout) {
+		state.serviceName = name
+		state.serviceHost = host
+		state.servicePort = port
+		state.serviceDesc = desc
+		state.serviceProtocol = protocol
+		state.serviceTimeout = timeout
 	}
 }
 

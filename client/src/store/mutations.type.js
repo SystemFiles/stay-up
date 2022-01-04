@@ -1,1 +1,1 @@
-export const FETCH_END = 'setArticles'
+export const ADDSVC = 'addService'

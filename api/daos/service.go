@@ -2,6 +2,7 @@ package daos
 
 type ServiceCreate struct {
 	Name string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
 	Host string `json:"host" validate:"required"`
 	Port int64 `json:"port" validate:"required,number"`
 	Protocol string `json:"protocol" validate:"required"`

@@ -15,10 +15,11 @@ func (e *ServiceProviderError) Error() string {
 	return fmt.Sprintf("Service Provider Error: %s", e.Message)
 }
 
-func CreateService(name, host, protocol string, port, timeout int64) (models.Service, error) {
+func CreateService(name, description, host, protocol string, port, timeout int64) (models.Service, error) {
 	// Create model from request data
 	svc := models.Service{
 		Name: name,
+		Description: description,
 		Host: host,
 		Port: port,
 		Protocol: util.GetProtocolFromString(protocol),

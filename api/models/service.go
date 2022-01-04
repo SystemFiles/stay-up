@@ -17,6 +17,7 @@ type Service struct {
 	gorm.Model
 	ID uint64 `gorm:"primaryKey"`
 	Name string `gorm:"not null"`
+	Description string `gorm:"not null"`
 	Host string `gorm:"not null"`
 	Port int64 `gorm:"not null"`
 	Protocol types.ServiceProtocol `gorm:"not null"`
