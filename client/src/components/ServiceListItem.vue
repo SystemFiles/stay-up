@@ -2,12 +2,11 @@
   <div class="card my-2">
     <div class="card-body">
       <h4 class="card-title">{{ name.trim().substring(0, 17) }}</h4>
-      <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">
-        {{ host }}:{{ port }}
-      </h6>
-      <p class="card-text">
-        {{ description.trim().substring(0, 28) + " ..." }}
-      </p>
+      <h6 style="font-size: 0.6rem" class="card-subtitle mb-2 text-muted">{{ host }}:{{ port }}</h6>
+      <p
+        style="font-size: small;"
+        class="card-text"
+      >{{ description.trim().substring(0, 38) + (description.length >= 38 ? " ..." : "") }}</p>
       <div class="row mx-0">
         <div
           v-bind:class="{
@@ -16,28 +15,14 @@
             'bg-danger': currentStatus === 'DOWN'
           }"
           class="badge px-5 py-3 mx-auto"
-        >
-          {{ currentStatus }}
-        </div>
+        >{{ currentStatus }}</div>
       </div>
       <div class="row mt-3">
         <div class="col-md-6">
-          <button
-            @click="deleteSvc"
-            type="button"
-            class="w-100 my-1 btn btn-danger"
-          >
-            DELETE
-          </button>
+          <button @click="deleteSvc" type="button" class="w-100 my-1 btn btn-danger">DELETE</button>
         </div>
         <div class="col-md-6">
-          <button
-            @click="updateSvc"
-            type="button"
-            class="w-100 my-1 btn btn-primary"
-          >
-            EDIT
-          </button>
+          <button @click="updateSvc" type="button" class="w-100 my-1 btn btn-primary">EDIT</button>
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
-// API == CONTROLLER
-package api
+package controller
 
 import (
 	"fmt"
