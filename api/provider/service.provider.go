@@ -6,6 +6,7 @@ import (
 	"github.com/systemfiles/stay-up/api/models"
 	"github.com/systemfiles/stay-up/api/types"
 	"github.com/systemfiles/stay-up/api/util"
+	"gorm.io/gorm/clause"
 )
 
 type ServiceProviderError struct{
@@ -110,7 +111,7 @@ func GetAllServices(dest *[]models.Service) error {
 	}
 
 	// get services from database
-	if err := db.Find(&dest).Error; err != nil {
+	if err := db.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: false}).Find(&dest).Error; err != nil {
 		return err
 	}
 

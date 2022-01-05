@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net"
+	"reflect"
 	"time"
 
 	"github.com/systemfiles/stay-up/api/types"
@@ -23,6 +24,29 @@ type Service struct {
 	Protocol types.ServiceProtocol `gorm:"not null"`
 	CurrentStatus types.ServiceStatus `gorm:"not null"`
 	TimeoutMs int64 `gorm:"not null"`
+}
+
+func (s Service) Equal(o Service) bool {
+	switch {
+	case s.ID != o.ID:
+		return false
+	case s.Name != o.Name:
+		return false
+	case s.Host != o.Host:
+		return false
+	case s.Port != o.Port:
+		return false
+	case s.Description != o.Description:
+		return false
+	case !reflect.DeepEqual(s.Protocol, o.Protocol):
+		return false
+	case !reflect.DeepEqual(s.CurrentStatus, o.CurrentStatus):
+		return false
+	case s.TimeoutMs != o.TimeoutMs:
+		return false
+	default:
+		return true
+	}
 }
 
 func (s *Service) CheckAndUpdateStatus() error {
