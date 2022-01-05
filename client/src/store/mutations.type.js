@@ -1,1 +1,1 @@
-export const ADDSVC = 'addService'
+export const ADDSVC = "addService";
