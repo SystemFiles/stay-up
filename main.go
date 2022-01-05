@@ -47,14 +47,11 @@ func main() {
 	// Load validators
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	// Websocker (realtime data)
-	e.GET("/", func(c echo.Context) error {
-		// Open websocker
-		return echo.NewHTTPError(http.StatusNotImplemented, "This endpoint is not implemented")
-	})
-
 	// API Group
 	gApi := e.Group("/api")
+
+	// Websocket (realtime service data)
+	gApi.GET("/service/ws", api.OpenWebsocketConnection)
 
 	// Service CRUD
 	gApi.GET("/service/:id", api.GetServiceWithId)

@@ -4,6 +4,8 @@ go 1.17
 
 require (
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/google/go-cmp v0.5.6
+	github.com/gorilla/websocket v1.4.2
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.6.1
 	gorm.io/driver/postgres v1.2.3

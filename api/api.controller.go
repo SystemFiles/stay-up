@@ -6,11 +6,48 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/systemfiles/stay-up/api/daos"
 	"github.com/systemfiles/stay-up/api/provider"
 )
+
+var wsUpgrader = websocket.Upgrader{}
+
+func OpenWebsocketConnection(c echo.Context) error {
+	wsTimeout := time.Duration(5 * time.Second)
+	wsUpgrader.CheckOrigin = func(r *http.Request) bool {return true}
+
+	ws, err := wsUpgrader.Upgrade(c.Response().Writer, c.Request(), nil)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadGateway, fmt.Sprintf("Could not establish a reliable connection to the websocket. Reason: %s", err.Error()))
+	}
+	defer ws.Close()
+	
+	log.Println("Connected")
+
+	// Setup socket to stream the service data to the connected client
+	errChan := make(chan error)
+	lastResponse := time.Now()
+	ws.SetPongHandler(func(msg string) error {
+		log.Printf("Got Ping Message: %s\n", msg)
+		lastResponse = time.Now()
+		return nil
+	})
+
+	go provider.StreamServiceData(ws, wsTimeout, lastResponse, errChan)
+	
+	if err := <- errChan; err != nil {
+		log.Println("ERROR OCCURRED: Closing websocket connection")
+		ws.Close()
+
+		return err
+	}
+
+	return nil
+}
 
 func CreateService(c echo.Context) error {
 	data := new(daos.ServiceCreate)
