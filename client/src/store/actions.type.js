@@ -1,1 +1,1 @@
-export const POST_SERVICE = 'postService'
+export const POST_SERVICE = "postService";

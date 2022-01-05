@@ -3,19 +3,25 @@
     <div class="banner">
       <div class="container" style="margin-top: 2.4rem;">
         <h1 class="d-flex justify-content-center logo-font">StayUp</h1>
-        <p
-          class="d-flex justify-content-center"
-        >Ultra-Lightweight Service / Host Monitoring Solution</p>
+        <p class="d-flex justify-content-center">
+          Ultra-Lightweight Service / Host Monitoring Solution
+        </p>
       </div>
     </div>
     <div class="container page">
-      <bar-loader class="w-100 position-fixed fixed-bottom" :loading="isLoading" :size="150"></bar-loader>
+      <bar-loader
+        class="w-100 position-fixed fixed-bottom"
+        :loading="isLoading"
+        :size="150"
+      ></bar-loader>
       <div class="row mt-5">
         <form data-bitwarden-watching="1" @submit.prevent="onPublish">
           <fieldset>
             <legend>Add a Service</legend>
             <div class="form-group">
-              <label for="serviceName" class="form-label mt-4">Service Name</label>
+              <label for="serviceName" class="form-label mt-4"
+                >Service Name</label
+              >
               <input
                 type="name"
                 class="form-control"
@@ -24,12 +30,9 @@
                 aria-describedby="nameHelp"
                 placeholder="enter a name for the service"
               />
-              <small
-                id="nameHelp"
-                class="form-text text-muted"
-              >Try to keep the name as short as possible</small>
-              <br />
-              <label for="serviceDesc" class="form-label mt-4">Short Description</label>
+              <label for="serviceDesc" class="form-label mt-4"
+                >Short Description</label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -39,7 +42,9 @@
               />
             </div>
             <div class="form-group">
-              <label for="serviceHost" class="form-label mt-4">Host and Port</label>
+              <label for="serviceHost" class="form-label mt-4"
+                >Host and Port</label
+              >
               <div class="row">
                 <div class="col-sm-8 col-8">
                   <input
@@ -60,17 +65,30 @@
                   />
                 </div>
               </div>
+
+              <small id="nameHelp" class="form-text text-muted">
+                Do
+                <u>not</u> include protocol headers (http://, https://, etc)
+              </small>
             </div>
             <div class="form-group">
-              <label for="serviceProtocol" class="form-label mt-4">Communication Protocol</label>
-              <select class="form-select" v-model="serviceProtocol" id="serviceProtocol">
+              <label for="serviceProtocol" class="form-label mt-4"
+                >Communication Protocol</label
+              >
+              <select
+                class="form-select"
+                v-model="serviceProtocol"
+                id="serviceProtocol"
+              >
                 <option value="TCP">Transmission Control Protocol (TCP)</option>
                 <option value="UDP">User Datagram Protocol (UDP)</option>
               </select>
             </div>
             <div class="form-group mt-4">
               <fieldset class="form-group">
-                <label for="serviceTimeout" class="form-label">Timeout (ms)</label>
+                <label for="serviceTimeout" class="form-label"
+                  >Timeout (ms)</label
+                >
                 <input
                   type="range"
                   class="form-range"
@@ -80,13 +98,17 @@
                   step="50"
                   id="serviceTimeout"
                 />
-                <p class="d-flex justify-content-end">{{ serviceTimeout }} ms</p>
+                <p class="d-flex justify-content-end">
+                  {{ serviceTimeout }} ms
+                </p>
               </fieldset>
             </div>
             <br />
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary mb-2">Submit</button>
             <router-link :to="{ name: 'home' }" replace>
-              <button type="button" class="btn btn-secondary">Cancel</button>
+              <button type="button" class="btn btn-secondary mb-2">
+                Cancel
+              </button>
             </router-link>
           </fieldset>
         </form>
@@ -94,7 +116,13 @@
     </div>
     <div class="row">
       <div class="fixed-bottom mb-5 ml-5 d-flex justify-content-end">
-        <div v-if="error" class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div
+          v-if="error"
+          class="toast show"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
           <div class="toast-header">
             <strong class="me-auto">Error</strong>
             <button
@@ -115,8 +143,8 @@
 </template>
 
 <script>
-import { BarLoader } from "@saeris/vue-spinners"
-import { SvcService } from "@/common/api.service"
+import { BarLoader } from "@saeris/vue-spinners";
+import { SvcService } from "@/common/api.service";
 
 export default {
   name: "Add",
@@ -124,44 +152,50 @@ export default {
     return {
       isLoading: false,
       error: false,
-      errorMessage: '',
-      serviceName: '',
-      serviceHost: '',
-      servicePort: '',
-      serviceDesc: '',
-      serviceProtocol: 'TCP',
+      errorMessage: "",
+      serviceName: "",
+      serviceHost: "",
+      servicePort: "",
+      serviceDesc: "",
+      serviceProtocol: "TCP",
       serviceTimeout: 250
-    }
+    };
   },
   components: {
     BarLoader
   },
   methods: {
     toggleError() {
-      this.$data.error = false
+      this.$data.error = false;
     },
     async onPublish() {
       const reqData = {
-        name: this.$data.serviceName.trim().substring(0, 25),
-        description: this.$data.serviceDesc.length > 0 ? this.$data.serviceDesc.trim().substring(0, 120) : "No description was provided",
+        name: this.$data.serviceName.trim().substring(0, 17),
+        description:
+          this.$data.serviceDesc.length > 0
+            ? this.$data.serviceDesc.trim().substring(0, 28)
+            : "No description was provided",
         host: this.$data.serviceHost.trim(),
         port: parseInt(this.$data.servicePort),
         protocol: this.$data.serviceProtocol.trim(),
         timeout: parseInt(this.$data.serviceTimeout)
-      }
+      };
 
       // start loading
-      this.$data.isLoading = true
+      this.$data.isLoading = true;
 
-      SvcService.post(reqData).then((res) => {
-        this.$data.isLoading = false
-        this.$router.replace({ name: 'home' })
-      }).catch((err) => {
-        console.log(err.response ? err.response.data.message : err.message)
-        this.$data.isLoading = false
-        this.$data.error = true
-        this.$data.errorMessage = `Could not create new service. See log for details.`
-      })
+      SvcService.post(reqData)
+        .then(res => {
+          console.log(`added service: ${res.data.message}`);
+          this.$data.isLoading = false;
+          this.$router.replace({ name: "home" });
+        })
+        .catch(err => {
+          console.log(err.response ? err.response.data.message : err.message);
+          this.$data.isLoading = false;
+          this.$data.error = true;
+          this.$data.errorMessage = `Could not create new service. See log for details.`;
+        });
     }
   }
 };

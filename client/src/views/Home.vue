@@ -14,14 +14,17 @@
 
       <div class="container mt-5 mx-auto">
         <div class="row">
-          <div class="col-md-3" v-for="svc in services">
+          <div v-if="!services.length">
+            <p class="d-flex justify-content-center mt-5">No services to display ... try adding one!</p>
+          </div>
+          <div class="col-md-3" v-for="svc in services" :key="svc.ID">
             <service-list-item
-              v-bind:id="svc.id"
-              v-bind:name="svc.name"
-              v-bind:description="svc.description"
-              v-bind:host="svc.host"
-              v-bind:port="svc.port"
-              v-bind:currentStatus="svc.currentStatus"
+              v-bind:id="svc.ID"
+              v-bind:name="svc.Name"
+              v-bind:description="svc.Description"
+              v-bind:host="svc.Host"
+              v-bind:port="svc.Port"
+              v-bind:currentStatus="svc.CurrentStatus"
               @deleteSvc="deleteSvc(svc)"
               @updateSvc="updateSvc(svc)"
             />
@@ -92,60 +95,77 @@ export default {
   name: "Home",
   data() {
     return {
-      services: [{
-        id: 1,
-        name: "Bitwarden",
-        host: "bitwarden.sykesdev.ca",
-        port: 443,
-        description: "A self-host password vault",
-        currentStatus: "SLOW"
-      }, {
-        id: 2,
-        name: "Jellyfin",
-        host: "jely.sykeshome.io",
-        port: 443,
-        description: "Media server for TV/Movies",
-        currentStatus: "UP"
-      }],
+      connection: null,
+      services: [],
       error: false,
-      errorMessage: '',
+      errorMessage: "",
       success: false,
-      successMessage: '',
+      successMessage: "",
       componentKey: 0
-    }
+    };
+  },
+  created() {
+    console.log("Starting connection to stay-up websocket server...");
+    this.connection = new WebSocket("ws://localhost:5555/api/service/ws");
+
+    const vm = this;
+    this.connection.onmessage = function (event) {
+      const data = event.data ? JSON.parse(event.data) : [];
+      vm.$data.services = data;
+    };
+
+    this.connection.onopen = function (event) {
+      console.log(
+        "Successfully opened connection to stay-up websocket server!"
+      );
+      console.log(event);
+    };
+
+    this.connection.onerror = function (err) {
+      console.log(`Error occurred in websocket connection: ${err}`);
+      vm.$data.error = true;
+      vm.$data.errorMessage =
+        "Failed to load data from websocket. Websocket connection closed. Refresh the page to try again";
+    };
+
+    this.connection.onclose = function (event) {
+      console.log("Closed connection to stay-up websocket server");
+      console.log(event);
+      vm.$data.services = [];
+    };
   },
   components: {
     serviceListItem: ServiceListItemVue
   },
   methods: {
     toggleError() {
-      this.$data.error = false
+      this.$data.error = false;
     },
     toggleSuccess() {
-      this.$data.success = false
+      this.$data.success = false;
     },
     refresh() {
-      this.componentKey += 1 // will force re-render
-    },
-    getServices() {
-      // Open websocket and receive data to services state
+      this.componentKey += 1; // will force re-render
     },
     async updateSvc(svc) {
-      console.log("NOT IMPLEMENTED")
-      this.$data.error = true
-      this.$data.errorMessage = "Feature not implemented yet..."
+      console.log("NOT IMPLEMENTED");
+      console.log(`Will update: ${svc.Name} (${svc.ID})`);
+      this.$data.error = true;
+      this.$data.errorMessage = "Feature not implemented yet...";
     },
     async deleteSvc(svc) {
-      SvcService.delete(svc.id).then((res) => {
-        if (res.status === 200) {
-          this.$data.success = true
-          this.$data.successMessage = `Successfully deleted service with ID, ${svc.id}!`
-        }
-      }).catch((err) => {
-        this.$data.error = true
-        this.$data.errorMessage = `Failed to delete service with ID, ${svc.id}. See log for details.`
-        console.log(err.response ? err.response.data.message : err.message)
-      })
+      SvcService.delete(svc.ID)
+        .then(res => {
+          if (res.status === 200) {
+            this.$data.success = true;
+            this.$data.successMessage = `Successfully deleted service, ${svc.Name} (${svc.ID})!`;
+          }
+        })
+        .catch(err => {
+          this.$data.error = true;
+          this.$data.errorMessage = `Failed to delete service, ${svc.Name} (${svc.ID}). See log for details.`;
+          console.log(err.response ? err.response.data.message : err.message);
+        });
     }
   }
 };
