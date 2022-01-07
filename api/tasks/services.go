@@ -11,7 +11,7 @@ import (
 	"github.com/systemfiles/stay-up/api/util"
 )
 
-func InitBackgroundServiceRefresh(ctx context.Context) error {
+func InitBackgroundServiceRefresh(ctx context.Context, refreshTime time.Duration) error {
 	select {
 	case <- ctx.Done():
 		return ctx.Err()

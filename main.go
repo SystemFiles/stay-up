@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -61,7 +62,7 @@ func main() {
 
 	// start background jobs to constantly check
 	backgroundCtx := context.Background()
-	go tasks.InitBackgroundServiceRefresh(backgroundCtx)
+	go tasks.InitBackgroundServiceRefresh(backgroundCtx, time.Duration(config.App.RefreshTimeMs))
 
 	e.Logger.Info(e.Start(":5555"))
 	log.Printf("Cleaning up remaining connections")

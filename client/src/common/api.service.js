@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import config from '../config'
+import { API_BASE_URL } from '../config'
 
 const ApiService = {
 	init() {
 		Vue.use(VueAxios, axios)
-		Vue.axios.defaults.baseURL = config.apiBaseUrl
+		Vue.axios.defaults.baseURL = API_BASE_URL
 	},
 
 	get(resource) {

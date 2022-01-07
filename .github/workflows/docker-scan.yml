@@ -1,0 +1,29 @@
+name: Lint and Scan Docker
+
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint-scan:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build Local Container Image
+        run: docker build -t local/stayup-api:latest .
+      - uses: anchore/scan-action@v2
+        with:
+          image: "local/stayup-api:latest"
+          severity-cutoff: "high"
+          fail-build: false
+          acs-report-enable: true
+      - name: Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
+      - name: grype scan JSON results
+        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done

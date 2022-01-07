@@ -25,7 +25,8 @@ func (c *AppConfig) Init() error {
 	var dbPort, refreshTime int64
 	var err error
 
-	if os.Getenv("DB_HOST") == "" {
+	dbHost = os.Getenv("DB_HOST")
+	if dbHost == "" {
 		dbHost = "localhost"
 	}
 
@@ -34,11 +35,13 @@ func (c *AppConfig) Init() error {
 		dbPort = 5432
 	}
 
-	if os.Getenv("DB_USER") == "" {
+	dbUser = os.Getenv("DB_USER")
+	if dbUser == "" {
 		dbUser = "stayup"
 	}
 
-	if os.Getenv("DB_PASS") == "" {
+	dbPass = os.Getenv("DB_PASS")
+	if dbPass == "" {
 		dbPass = "upstay"
 	}
 

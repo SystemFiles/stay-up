@@ -91,6 +91,7 @@
 <script>
 import ServiceListItemVue from "../components/ServiceListItem.vue";
 import { SvcService } from "../common/api.service";
+import { API_WEBSOCK_URL } from "../config";
 export default {
   name: "Home",
   data() {
@@ -106,7 +107,7 @@ export default {
   },
   created() {
     console.log("Starting connection to stay-up websocket server...");
-    this.connection = new WebSocket("ws://localhost:5555/api/service/ws");
+    this.connection = new WebSocket(API_WEBSOCK_URL);
 
     const vm = this;
     this.connection.onmessage = function (event) {
