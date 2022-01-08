@@ -23,7 +23,6 @@ services:
       DB_USER: stayup
       DB_PASS: upstay
       SERVICE_REFRESH_TIME_MS: 2500
-      ALLOWED_ORIGINS: http://stayup-client:80,http://stayup-client,http://localhost:80
     ports:
       - 5555:5555
     networks:
@@ -35,7 +34,7 @@ services:
     container_name: stayup-client
     restart: on-failure
     ports:
-      - 80:80
+      - 80:3000
     networks:
       - stayup-net
     depends_on:

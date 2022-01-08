@@ -51,7 +51,7 @@ func (c *AppConfig) Init() error {
 	}
 
 	allowedOrigins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
-	if len(allowedOrigins) < 1 {
+	if len(allowedOrigins) <= 1 || allowedOrigins == nil {
 		allowedOrigins = []string{"*"}
 	}
 
