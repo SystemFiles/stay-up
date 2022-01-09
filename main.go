@@ -66,6 +66,7 @@ func main() {
 	go tasks.InitBackgroundServiceRefresh(backgroundCtx, time.Duration(config.App.RefreshTimeMs))
 
 	e.Logger.Info(e.Start(":5555"))
-	log.Printf("Cleaning up remaining connections")
+	log.Println("Cleaning up remaining connections")
 	backgroundCtx.Done()
+	log.Println("Exited cleanly!")
 }

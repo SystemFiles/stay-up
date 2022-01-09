@@ -41,7 +41,7 @@ func InitBackgroundServiceRefresh(ctx context.Context, refreshTime time.Duration
 			wg.Wait()
 
 			// refresh time
-			time.Sleep(5000 * time.Millisecond)
+			time.Sleep(refreshTime * time.Millisecond)
 		}
 	}
 }
