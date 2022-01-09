@@ -4,12 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/systemfiles/stay-up/api"
 	"github.com/systemfiles/stay-up/api/config"
+	"github.com/systemfiles/stay-up/api/controller"
 	"github.com/systemfiles/stay-up/api/tasks"
 )
 
@@ -40,8 +41,9 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:8080", "https://localhost:8080"},
+		AllowOrigins: config.App.AllowedOrigins,
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowMethods:  []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 	}))
 
 	// Load validators
@@ -51,17 +53,17 @@ func main() {
 	gApi := e.Group("/api")
 
 	// Websocket (realtime service data)
-	gApi.GET("/service/ws", api.OpenWebsocketConnection)
+	gApi.GET("/service/ws", controller.OpenWebsocketConnection)
 
 	// Service CRUD
-	gApi.GET("/service/:id", api.GetServiceWithId)
-	gApi.POST("/service", api.CreateService)
-	gApi.PUT("/service", api.UpdateService)
-	gApi.DELETE("/service/:id", api.DeleteServiceWithId)
+	gApi.GET("/service/:id", controller.GetServiceWithId)
+	gApi.POST("/service", controller.CreateService)
+	gApi.PUT("/service", controller.UpdateService)
+	gApi.DELETE("/service/:id", controller.DeleteServiceWithId)
 
 	// start background jobs to constantly check
 	backgroundCtx := context.Background()
-	go tasks.InitBackgroundServiceRefresh(backgroundCtx)
+	go tasks.InitBackgroundServiceRefresh(backgroundCtx, time.Duration(config.App.RefreshTimeMs))
 
 	e.Logger.Info(e.Start(":5555"))
 	log.Printf("Cleaning up remaining connections")
