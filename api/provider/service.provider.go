@@ -32,6 +32,9 @@ func CreateService(name, description, host, protocol string, port, timeout int64
 		Protocol: util.GetProtocolFromString(protocol),
 		CurrentStatus: types.UP,
 		TimeoutMs: timeout,
+		LastDown: time.Now(),
+		UptimeSeconds: 0,
+		LatencyMs: 0,
 	}
 
 	// Open DB connection
