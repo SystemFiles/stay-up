@@ -34,7 +34,7 @@ services:
     networks:
       - stayup-net
   stayup-api:
-    image: local/stayup-api:latest
+    image: sykeben/stayup-api:1.1.0
     container_name: stayup-api
     restart: on-failure
     environment:
@@ -50,7 +50,7 @@ services:
     depends_on:
       - db
   stayup-client:
-    image: local/stayup-client:latest
+    image: sykeben/stayup-client:1.1.0
     container_name: stayup-client
     restart: on-failure
     environment:
