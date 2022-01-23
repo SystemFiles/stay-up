@@ -60,22 +60,26 @@ func (s Service) Equal(o Service) bool {
 
 func (s *Service) CheckAndUpdateStatus() error {
 	timeout := time.Duration(s.TimeoutMs) * time.Millisecond
+	
+	// perform uptime test with TCP / UDP connect
 	startTime := time.Now()
 	_, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
 	execTime := time.Since(startTime).Milliseconds()
 
-	// check status for service
+	// update status with conditions
 	if err != nil {
 		s.CurrentStatus = types.DOWN
+		s.LatencyMs = 0
 		s.LastDown = time.Now()
-	} else if execTime > time.Duration(100 * time.Millisecond).Milliseconds() {
-		s.CurrentStatus = types.SLOW
 	} else {
-		s.CurrentStatus = types.UP
+		if execTime > time.Duration(100 * time.Millisecond).Milliseconds() {
+			s.CurrentStatus = types.SLOW
+			s.LatencyMs = execTime
+		} else {
+			s.CurrentStatus = types.UP
+			s.LatencyMs = execTime
+		}
 	}
-
-	// update latency time
-	s.LatencyMs = execTime
 
 	// update uptime
 	s.UptimeSeconds = int64(time.Since(s.LastDown).Seconds())
