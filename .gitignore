@@ -27,3 +27,8 @@ dev/*
 /Godeps/
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# Docker
+.docker/**/*.crt
+.docker/**/*.pem
+.docker/**/*.key

@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Nginx reverse-proxy for routing traffic to server resources (NOTE: Ensure networks are first connected for any services configured in nginx.conf)
+  webserver:
+    image: nginx:1.21.0-alpine
+    container_name: webserver
+    restart: unless-stopped
+    volumes:
+      - web-root:/var/www/html # Volume mount for web-root (optional)
+      - ./.docker/nginx:/etc/nginx/conf.d # Volume mount for nginx config folder (required)
+      - ./.docker/nginx/snippets:/config/nginx # Volume mount for some nginx config snippets (required)
+      - ./.docker/ssl/certs:/ssl/certs
+      - ./.docker/ssl/private:/ssl/private
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - db
+      - stayup-api
+      - stayup-client
+    networks:
+      - stayup-net
+  db:
+    image: postgres:13.5
+    container_name: stayup-db
+    restart: on-failure
+    environment:
+      POSTGRES_DB: stayup_db
+      POSTGRES_USER: stayup
+      POSTGRES_PASSWORD: upstay
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - stayup-net
+  stayup-api:
+    image: local/stayup-api:latest
+    container_name: stayup-api
+    restart: on-failure
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: stayup
+      DB_PASS: upstay
+      SERVICE_REFRESH_TIME_MS: 2500
+    ports:
+      - 5555:5555
+    networks:
+      - stayup-net
+    depends_on:
+      - db
+  stayup-client:
+    image: local/stayup-client:latest
+    container_name: stayup-client
+    restart: on-failure
+    environment:
+      API_BASE_URL: https://status.sykeshome.io/api
+      API_WEBSOCK_URL: wss://status.sykeshome.io/api/service/ws
+    networks:
+      - stayup-net
+    depends_on:
+      - db
+      - stayup-api
+
+networks:
+  stayup-net:
+    driver: bridge
+volumes:
+  db_data:
+  web-root:
+    driver: local

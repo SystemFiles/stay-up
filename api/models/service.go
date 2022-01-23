@@ -24,6 +24,9 @@ type Service struct {
 	Protocol types.ServiceProtocol `gorm:"not null"`
 	CurrentStatus types.ServiceStatus `gorm:"not null"`
 	TimeoutMs int64 `gorm:"not null"`
+	LastDown time.Time
+	UptimeSeconds int64 `gorm:"check:uptime_seconds >= 0"`
+	LatencyMs int64 `gorm:"check:latency_ms >= 0"`
 }
 
 func (s Service) Equal(o Service) bool {
@@ -44,6 +47,12 @@ func (s Service) Equal(o Service) bool {
 		return false
 	case s.TimeoutMs != o.TimeoutMs:
 		return false
+	case s.LastDown != o.LastDown:
+		return false
+	case s.UptimeSeconds != o.UptimeSeconds:
+		return false
+	case s.LatencyMs != o.LatencyMs:
+		return false
 	default:
 		return true
 	}
@@ -51,15 +60,29 @@ func (s Service) Equal(o Service) bool {
 
 func (s *Service) CheckAndUpdateStatus() error {
 	timeout := time.Duration(s.TimeoutMs) * time.Millisecond
+	
+	// perform uptime test with TCP / UDP connect
 	startTime := time.Now()
 	_, err := net.DialTimeout(s.Protocol.String(), fmt.Sprintf("%s:%s", s.Host, fmt.Sprint(s.Port)), timeout)
 	execTime := time.Since(startTime).Milliseconds()
+
+	// update status with conditions
 	if err != nil {
 		s.CurrentStatus = types.DOWN
-	} else if execTime > time.Duration(100 * time.Millisecond).Milliseconds() {
-		s.CurrentStatus = types.SLOW
+		s.LatencyMs = 0
+		s.LastDown = time.Now()
 	} else {
-		s.CurrentStatus = types.UP
+		if execTime > time.Duration(100 * time.Millisecond).Milliseconds() {
+			s.CurrentStatus = types.SLOW
+			s.LatencyMs = execTime
+		} else {
+			s.CurrentStatus = types.UP
+			s.LatencyMs = execTime
+		}
 	}
+
+	// update uptime
+	s.UptimeSeconds = int64(time.Since(s.LastDown).Seconds())
+
 	return nil
 }
