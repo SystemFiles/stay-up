@@ -9,11 +9,13 @@ StayUp is a simple barebones uptime page for a configurable set of sites, web se
 <p align="center">
   <img src=".github/media/main-screen.png" alt="StayUp Logo"/>
 </p>
+
 > Main screen showing primarily the latency graph which is updated in realtime for the past 2 minutes
 
 <p align="center">
   <img src=".github/media/service-list.png" alt="StayUp Logo"/>
 </p>
+
 > Main screen showing an example of the service list which is also constantly up-to-date in real-time.
 
 ## Usage (with client)
