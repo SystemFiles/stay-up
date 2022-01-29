@@ -8,7 +8,7 @@ import (
 
 	"github.com/systemfiles/stay-up/api/models"
 	"github.com/systemfiles/stay-up/api/provider"
-	"github.com/systemfiles/stay-up/api/util"
+	rclient "github.com/systemfiles/stay-up/api/util/redis"
 )
 
 func InitBackgroundServiceRefresh(ctx context.Context, refreshTime time.Duration) error {
@@ -47,16 +47,10 @@ func InitBackgroundServiceRefresh(ctx context.Context, refreshTime time.Duration
 }
 
 func serviceWorker(svc *models.Service) {
-	db, err := util.GetDBInstance()
-	if err != nil {
-		fmt.Printf("Failed to get database instance. %s", err.Error())
-		return
-	}
-
 	if err := svc.CheckAndUpdateStatus(); err != nil {
 		fmt.Printf("Failed to get status for service: %s. Reason: %s", svc.Name, err.Error())
 		return
 	}
 
-	db.Save(&svc)
+	rclient.Set(svc.ID, svc)
 }

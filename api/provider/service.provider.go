@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/systemfiles/stay-up/api/models"
 	"github.com/systemfiles/stay-up/api/types"
 	"github.com/systemfiles/stay-up/api/util"
-	"gorm.io/gorm/clause"
+	rclient "github.com/systemfiles/stay-up/api/util/redis"
 )
 
 type ServiceProviderError struct{
@@ -23,8 +24,11 @@ func (e *ServiceProviderError) Error() string {
 }
 
 func CreateService(name, description, host, protocol string, port, timeout int64) (models.Service, error) {
+	svcId := uuid.NewString()
+
 	// Create model from request data
 	svc := models.Service{
+		ID: svcId,
 		Name: name,
 		Description: description,
 		Host: host,
@@ -37,32 +41,17 @@ func CreateService(name, description, host, protocol string, port, timeout int64
 		LatencyMs: 0,
 	}
 
-	// Open DB connection
-	db, err := util.GetDBInstance()
-	if err != nil {
-		return models.Service{}, &ServiceProviderError{Message: "Could not get a valid database instance"}
-	}
-
-	// Create model in DB
-	if err := db.Create(&svc).Error; err != nil {
-		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Failed to create the service in target database. Reason: %s", err)}
+	if err := rclient.Set(svcId, &svc); err != nil {
+		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Failed to create new service in rdb. Reason: %s", err)}
 	}
 
 	return svc, nil
 }
 
-func GetServiceById(id uint64) (models.Service, error) {
-	// open database connection
-	db, err := util.GetDBInstance()
-	if err != nil {
-		return models.Service{}, &ServiceProviderError{Message: "Could not get a valid database instance"}
-	}
-
-	// find service with id
+func GetServiceById(id string) (models.Service, error) {
 	var svc models.Service
-	db.First(&svc, id)
-	if svc.ID != id {
-		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not find service with ID, %d.", id)}
+	if err := rclient.Get(id, &svc); err != nil {
+		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not find service with ID, %s", id)}
 	}
 
 	return svc, nil
@@ -104,61 +93,34 @@ func StreamServiceData(ws *websocket.Conn, timeout time.Duration, lastResponse t
 	}
 }
 
-func UpdateServiceWithId(id uint64, attr string, val interface{}) (models.Service, error) {
-	// open database connection
-	db, err := util.GetDBInstance()
+func UpdateServiceWithId(id string, attr string, val interface{}) (models.Service, error) {
+	// find service model with given primary_key -> id
+	svc, err := GetServiceById(id)
 	if err != nil {
-		return models.Service{}, &ServiceProviderError{Message: "Could not get a valid database instance"}
+		return models.Service{}, &ServiceProviderError{Message: err.Error()}
 	}
 
-	// find service model with given primary_key -> id
-	var svc models.Service
-	db.First(&svc, id)
-	if svc.ID != id {
-		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not find service with ID, %d.", id)}
-	}
+	// get data into updatable format
+	var svcMap map[string]interface{}
+	util.StructToMap(svc, &svcMap)
 
 	// make update
-	if err := db.Model(&svc).Update(attr, val).Error; err != nil {
-		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not perform the update. Reason %s", err.Error())}
-	}
+	svcMap[attr] = val
 
-	return svc, nil
+	svcPostUpdate, err := util.MapToStruct(svcMap)
+	if err != nil {
+		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not perform update. Reason: %s", err)}
+	}
+	return svcPostUpdate, nil
 }
 
-func DeleteServiceWithId(id uint64) error {
-	// open database connection
-	db, err := util.GetDBInstance()
-	if err != nil {
-		return &ServiceProviderError{Message: "Could not get a valid database instance"}
-	}
-
-	// find service using ID
-	var svc models.Service
-	db.First(&svc, id)
-	if svc.ID != id {
-		return &ServiceProviderError{Message: fmt.Sprintf("Could not find service with ID, %d.", id)}
-	}
-
-	// delete the service
-	if err := db.Delete(&svc).Error; err != nil {
-		return &ServiceProviderError{Message: fmt.Sprintf("Failed to delete service from database. Reason: %s", err)}
-	}
-	
-	return nil
+func DeleteServiceWithId(id string) error {
+	return rclient.Delete(id)
 }
 
 func GetAllServices(dest *[]models.Service) error {
-	// open database connection
-	db, err := util.GetDBInstance()
-	if err != nil {
-		return err
+	if err := rclient.GetAll(dest); err != nil {
+		return &ServiceProviderError{Message: fmt.Sprintf("Could not get list of services from redis-server. Reason %s", err)}
 	}
-
-	// get services from database
-	if err := db.Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: false}).Find(&dest).Error; err != nil {
-		return err
-	}
-
 	return nil
 }

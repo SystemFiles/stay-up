@@ -12,38 +12,29 @@ var App AppConfig
 
 type AppConfig struct {
 	AllowedOrigins []string
-	DBHost string
-	DBPort int64
-	DBUser string
-	DBPass string
+	RDBHost string
+	RDBPort string
+	RDBPass string
 	RefreshTimeMs int64
 }
 
 func (c *AppConfig) Init() error {
 	godotenv.Load(".env")
-	var dbHost, dbUser, dbPass string
-	var dbPort, refreshTime int64
+	var rdbHost, rdbPort, rdbPass string
+	var refreshTime int64
 	var err error
 
-	dbHost = os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
+	rdbHost = os.Getenv("REDIS_RDB_HOST")
+	if rdbHost == "" {
+		rdbHost = "localhost"
 	}
 
-	dbPort, err = strconv.ParseInt(os.Getenv("DB_PORT"), 10, 64)
-	if err != nil || (dbPort / 1000) < 1 {
-		dbPort = 5432
+	rdbPort = os.Getenv("REDIS_RDB_PORT")
+	if rdbPort == "" {
+		rdbPort = "5432"
 	}
 
-	dbUser = os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "stayup"
-	}
-
-	dbPass = os.Getenv("DB_PASS")
-	if dbPass == "" {
-		dbPass = "upstay"
-	}
+	rdbPass = os.Getenv("REDIS_RDB_PASS")
 
 	refreshTime, err = strconv.ParseInt(os.Getenv("SERVICE_REFRESH_TIME_MS"), 10, 64)
 	if err != nil || refreshTime < 1 {
@@ -57,10 +48,9 @@ func (c *AppConfig) Init() error {
 
 	App = AppConfig{
 		AllowedOrigins: allowedOrigins,
-		DBHost: dbHost,
-		DBPort: dbPort,
-		DBUser: dbUser,
-		DBPass: dbPass,
+		RDBHost: rdbHost,
+		RDBPort: rdbPort,
+		RDBPass: rdbPass,
 		RefreshTimeMs: refreshTime,
 	}
 

@@ -10,7 +10,7 @@ type ServiceCreate struct {
 }
 
 type ServiceUpdate struct {
-	ID uint64 `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required"`
 	Attribute string `json:"attribute" validate:"required"`
 	NewValue interface{} `json:"new_value" validate:"required"`
 }
