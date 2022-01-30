@@ -88,7 +88,7 @@ func UpdateService(c echo.Context) error {
 	}
 
 	// perform update using provider
-	svc, err := provider.UpdateServiceWithId(data.ID, data.Attribute, data.NewValue)
+	svc, err := provider.UpdateServiceWithId(data)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}

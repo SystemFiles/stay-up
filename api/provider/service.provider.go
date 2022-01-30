@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"github.com/systemfiles/stay-up/api/daos"
 	"github.com/systemfiles/stay-up/api/models"
 	"github.com/systemfiles/stay-up/api/types"
 	"github.com/systemfiles/stay-up/api/util"
@@ -93,25 +94,26 @@ func StreamServiceData(ws *websocket.Conn, timeout time.Duration, lastResponse t
 	}
 }
 
-func UpdateServiceWithId(id string, attr string, val interface{}) (models.Service, error) {
-	// find service model with given primary_key -> id
-	svc, err := GetServiceById(id)
+func UpdateServiceWithId(newServiceData *daos.ServiceUpdate) (*models.Service, error) {
+	old, err := GetServiceById(newServiceData.ID)
 	if err != nil {
-		return models.Service{}, &ServiceProviderError{Message: err.Error()}
+		return &models.Service{}, err
 	}
 
-	// get data into updatable format
-	var svcMap map[string]interface{}
-	util.StructToMap(svc, &svcMap)
-
-	// make update
-	svcMap[attr] = val
-
-	svcPostUpdate, err := util.MapToStruct(svcMap)
-	if err != nil {
-		return models.Service{}, &ServiceProviderError{Message: fmt.Sprintf("Could not perform update. Reason: %s", err)}
+	svc := &models.Service{
+		ID: old.ID,
+		Name: newServiceData.Name,
+		Description: newServiceData.Description,
+		Host: newServiceData.Host,
+		Port: newServiceData.Port,
+		Protocol: util.GetProtocolFromString(newServiceData.Protocol),
+		TimeoutMs: newServiceData.TimeoutMs,
+		LastDown: old.LastDown,
+		LatencyMs: old.LatencyMs,
+		CurrentStatus: old.CurrentStatus,
 	}
-	return svcPostUpdate, nil
+
+	return svc, rclient.Set(old.ID, svc)
 }
 
 func DeleteServiceWithId(id string) error {
