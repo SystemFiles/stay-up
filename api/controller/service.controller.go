@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -60,18 +59,15 @@ func CreateService(c echo.Context) error {
 	// create service in database
 	svc, err := provider.CreateService(data.Name, data.Description, data.Host, data.Protocol, data.Port, data.TimeoutMs)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSONPretty(http.StatusCreated, svc, "  ")
 }
 
 func GetServiceWithId(c echo.Context) error {
-	serviceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Cannot process ID provided")
-	}
-
+	serviceID := c.Param("id")
+	
 	// get service from database
 	svc, err := provider.GetServiceById(serviceID)
 	if err != nil {
@@ -92,7 +88,7 @@ func UpdateService(c echo.Context) error {
 	}
 
 	// perform update using provider
-	svc, err := provider.UpdateServiceWithId(data.ID, data.Attribute, data.NewValue)
+	svc, err := provider.UpdateServiceWithId(data)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -101,11 +97,8 @@ func UpdateService(c echo.Context) error {
 }
 
 func DeleteServiceWithId(c echo.Context) error {
-	serviceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Cannot process ID provided")
-	}
-
+	serviceID := c.Param("id")
+	
 	// perform delete using provider
 	if err := provider.DeleteServiceWithId(serviceID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

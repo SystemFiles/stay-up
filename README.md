@@ -26,6 +26,8 @@ Using docker-compose, execute the following to start up the required services on
 docker-compose up -d
 ```
 
+> Note that the client code can be found [here](https://github.com/systemfiles/stay-up-client)
+
 ## Usage (only API server)
 
 It is required that you have a running postgres database that the stayup server can write to. Modify the settings in a file (`.env`) or through environment variables.

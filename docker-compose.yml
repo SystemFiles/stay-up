@@ -16,41 +16,36 @@ services:
       - 80:80
       - 443:443
     depends_on:
-      - db
+      - redis
       - stayup-api
       - stayup-client
     networks:
       - stayup-net
-  db:
-    image: postgres:13.5
-    container_name: stayup-db
+  redis:
+    image: redis:latest
+    container_name: redis
     restart: on-failure
-    environment:
-      POSTGRES_DB: stayup_db
-      POSTGRES_USER: stayup
-      POSTGRES_PASSWORD: upstay
+    command: redis-server --save 60 1 --loglevel warning
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - redis_data:/data
     networks:
       - stayup-net
   stayup-api:
-    image: sykeben/stayup-api:1.1.0
+    image: sykeben/stayup-api:2.0.0
     container_name: stayup-api
     restart: on-failure
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: stayup
-      DB_PASS: upstay
+      REDIS_RDB_HOST: redis
+      REDIS_RDB_PORT: 6379
       SERVICE_REFRESH_TIME_MS: 2500
     ports:
       - 5555:5555
     networks:
       - stayup-net
     depends_on:
-      - db
+      - redis
   stayup-client:
-    image: sykeben/stayup-client:1.1.0
+    image: sykeben/stayup-client:2.0.0
     container_name: stayup-client
     restart: on-failure
     environment:
@@ -59,13 +54,13 @@ services:
     networks:
       - stayup-net
     depends_on:
-      - db
+      - redis
       - stayup-api
 
 networks:
   stayup-net:
     driver: bridge
 volumes:
-  db_data:
+  redis_data:
   web-root:
     driver: local

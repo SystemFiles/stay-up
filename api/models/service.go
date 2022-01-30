@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/systemfiles/stay-up/api/types"
-	"gorm.io/gorm"
 )
 
 type IService interface {
@@ -15,18 +14,17 @@ type IService interface {
 }
 
 type Service struct {
-	gorm.Model
-	ID uint64 `gorm:"primaryKey"`
-	Name string `gorm:"not null"`
-	Description string `gorm:"not null"`
-	Host string `gorm:"not null"`
-	Port int64 `gorm:"not null"`
-	Protocol types.ServiceProtocol `gorm:"not null"`
-	CurrentStatus types.ServiceStatus `gorm:"not null"`
-	TimeoutMs int64 `gorm:"not null"`
+	ID string
+	Name string
+	Description string
+	Host string
+	Port int64
+	Protocol types.ServiceProtocol
+	CurrentStatus types.ServiceStatus
+	TimeoutMs int64
 	LastDown time.Time
-	UptimeSeconds int64 `gorm:"check:uptime_seconds >= 0"`
-	LatencyMs int64 `gorm:"check:latency_ms >= 0"`
+	UptimeSeconds int64
+	LatencyMs int64
 }
 
 func (s Service) Equal(o Service) bool {

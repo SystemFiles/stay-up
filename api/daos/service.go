@@ -10,9 +10,13 @@ type ServiceCreate struct {
 }
 
 type ServiceUpdate struct {
-	ID uint64 `json:"id" validate:"required"`
-	Attribute string `json:"attribute" validate:"required"`
-	NewValue interface{} `json:"new_value" validate:"required"`
+	ID string `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	Host string `json:"host"`
+	Port int64 `json:"port"`
+	Protocol string `json:"protocol"`
+	TimeoutMs int64 `json:"timeout"`
 }
 
 type DeleteServiceResponse struct {
