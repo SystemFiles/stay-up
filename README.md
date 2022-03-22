@@ -4,7 +4,7 @@
   <hr/>
 </p>
 
-StayUp is a simple barebones uptime page for a configurable set of sites, web services and hosts in a local or remote deployment setting
+StayUp is a simple barebones uptime page for a configurable set of sites, web services and hosts in a local or remote deployment setting. Find full, detailed list of changes in our [CHANGELOG](/CHANGELOG.md)
 
 <p align="center">
   <img src=".github/media/main-screen.png" alt="StayUp Logo"/>

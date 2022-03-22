@@ -31,7 +31,7 @@ services:
     networks:
       - stayup-net
   stayup-api:
-    image: sykeben/stayup-api:2.0.0
+    image: sykeben/stayup-api:2.0.1
     container_name: stayup-api
     restart: on-failure
     environment:
